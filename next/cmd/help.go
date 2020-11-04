@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func (c *Config) newHelpCmd(rootCmd *cobra.Command) *cobra.Command {
+func (c *Config) newHelpCmd() *cobra.Command {
 	helpCmd := &cobra.Command{
 		Use:     "help [command]",
 		Short:   "Print help about a command",

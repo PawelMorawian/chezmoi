@@ -48,17 +48,21 @@ func (c *Config) lastpassRawFunc(id string) []map[string]interface{} {
 		}
 		c.Lastpass.versionOK = true
 	}
+
 	if data, ok := c.Lastpass.cache[id]; ok {
 		return data
 	}
+
 	output, err := c.lastpassOutput("show", "--json", id)
 	if err != nil {
 		panic(err)
 	}
+
 	var data []map[string]interface{}
 	if err := json.Unmarshal(output, &data); err != nil {
 		panic(fmt.Errorf("%s: parse error: %w", output, err))
 	}
+
 	if c.Lastpass.cache == nil {
 		c.Lastpass.cache = make(map[string][]map[string]interface{})
 	}
