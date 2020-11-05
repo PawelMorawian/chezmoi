@@ -203,7 +203,7 @@ func (s *SourceState) Add(sourceSystem System, destPathInfos map[string]os.FileI
 	targetSourceState := &SourceState{
 		entries: newSourceStateEntries,
 	}
-	return targetSourceState.ApplyAll(sourceSystem, s.sourceDir, ApplyOptions{
+	return targetSourceState.applyAll(sourceSystem, s.sourceDir, ApplyOptions{
 		Include: options.Include,
 		Umask:   options.umask,
 	})
@@ -261,14 +261,25 @@ type ApplyOptions struct {
 	UpdateState bool
 }
 
-// ApplyAll updates targetDir in fs to match s.
-func (s *SourceState) ApplyAll(targetSystem System, targetDir string, options ApplyOptions) error {
-	for _, targetName := range s.sortedTargetNames() {
-		if err := s.ApplyOne(targetSystem, targetDir, targetName, options); err != nil {
-			return err
-		}
+// AllTargetNames returns all of s's target names in order.
+func (s *SourceState) AllTargetNames() []string {
+	targetNames := make([]string, 0, len(s.entries))
+	for targetName := range s.entries {
+		targetNames = append(targetNames, targetName)
 	}
-	return nil
+	sort.Slice(targetNames, func(i, j int) bool {
+		orderI := s.entries[targetNames[i]].Order()
+		orderJ := s.entries[targetNames[j]].Order()
+		switch {
+		case orderI < orderJ:
+			return true
+		case orderI == orderJ:
+			return targetNames[i] < targetNames[j]
+		default:
+			return false
+		}
+	})
+	return targetNames
 }
 
 // ApplyOne updates targetName in targetDir on fs to match s using s.
@@ -338,7 +349,7 @@ func (s *SourceState) Entry(targetName string) (SourceStateEntry, bool) {
 
 // Evaluate evaluates every target state entry in s.
 func (s *SourceState) Evaluate() error {
-	for _, targetName := range s.sortedTargetNames() {
+	for _, targetName := range s.AllTargetNames() {
 		sourceStateEntry := s.entries[targetName]
 		if err := sourceStateEntry.Evaluate(); err != nil {
 			return err
@@ -689,6 +700,16 @@ func (s *SourceState) addVersionFile(sourcePath string) error {
 	return nil
 }
 
+// applyAll updates targetDir in fs to match s.
+func (s *SourceState) applyAll(targetSystem System, targetDir string, options ApplyOptions) error {
+	for _, targetName := range s.AllTargetNames() {
+		if err := s.ApplyOne(targetSystem, targetDir, targetName, options); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (s *SourceState) executeTemplate(path string) ([]byte, error) {
 	data, err := s.system.ReadFile(path)
 	if err != nil {
@@ -807,27 +828,6 @@ func (s *SourceState) newSourceStateFile(sourcePath string, fa FileAttributes, t
 		Attributes:           fa,
 		targetStateEntryFunc: targetStateEntryFunc,
 	}
-}
-
-// sortedTargetNames returns all of s's target names in order.
-func (s *SourceState) sortedTargetNames() []string {
-	targetNames := make([]string, 0, len(s.entries))
-	for targetName := range s.entries {
-		targetNames = append(targetNames, targetName)
-	}
-	sort.Slice(targetNames, func(i, j int) bool {
-		orderI := s.entries[targetNames[i]].Order()
-		orderJ := s.entries[targetNames[j]].Order()
-		switch {
-		case orderI < orderJ:
-			return true
-		case orderI == orderJ:
-			return targetNames[i] < targetNames[j]
-		default:
-			return false
-		}
-	})
-	return targetNames
 }
 
 func (s *SourceState) sourceStateEntry(destStateEntry DestStateEntry, destPath string, info os.FileInfo, parentDir string, options *AddOptions) (SourceStateEntry, error) {

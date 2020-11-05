@@ -66,6 +66,7 @@ type Config struct {
 	debug         bool
 	dryRun        bool
 	force         bool
+	keepGoing     bool
 	output        string
 	verbose       bool
 	templateFuncs template.FuncMap
@@ -315,21 +316,26 @@ func (c *Config) applyArgs(targetSystem chezmoi.System, targetDir string, args [
 		Umask:   umask,
 	}
 
+	var targetNames []string
 	if len(args) == 0 {
-		return s.ApplyAll(targetSystem, targetDir, applyOptions)
-	}
-
-	targetNames, err := c.getTargetNames(s, args, getTargetNamesOptions{
-		mustBeInSourceState: true,
-		recursive:           recursive,
-	})
-	if err != nil {
-		return err
+		targetNames = s.AllTargetNames()
+	} else {
+		targetNames, err = c.getTargetNames(s, args, getTargetNamesOptions{
+			mustBeInSourceState: true,
+			recursive:           recursive,
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	for _, targetName := range targetNames {
 		if err := s.ApplyOne(targetSystem, targetDir, targetName, applyOptions); err != nil {
-			return err
+			if c.keepGoing {
+				c.errorf("%v", err)
+			} else {
+				return err
+			}
 		}
 	}
 
@@ -346,6 +352,10 @@ func (c *Config) cmdOutput(dir, name string, args []string) ([]byte, error) {
 		}
 	}
 	return c.baseSystem.IdempotentCmdOutput(cmd)
+}
+
+func (c *Config) errorf(format string, args ...interface{}) {
+	fmt.Fprintf(c.stderr, "chezmoi: "+format, args...)
 }
 
 func (c *Config) getDefaultTemplateData() (map[string]interface{}, error) {

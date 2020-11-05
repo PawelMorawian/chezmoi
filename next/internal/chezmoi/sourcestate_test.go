@@ -461,7 +461,7 @@ func TestSourceStateApplyAll(t *testing.T) {
 			s := NewSourceState(sourceStateOptions...)
 			require.NoError(t, s.Read())
 			require.NoError(t, s.Evaluate())
-			require.NoError(t, s.ApplyAll(system, "/home/user", ApplyOptions{
+			require.NoError(t, s.applyAll(system, "/home/user", ApplyOptions{
 				Umask: GetUmask(),
 			}))
 
@@ -519,7 +519,7 @@ func TestSourceStateSortedTargetNames(t *testing.T) {
 				WithSystem(newTestRealSystem(fs)),
 			)
 			require.NoError(t, s.Read())
-			assert.Equal(t, tc.expectedSortedTargetNames, s.sortedTargetNames())
+			assert.Equal(t, tc.expectedSortedTargetNames, s.AllTargetNames())
 		})
 	}
 }

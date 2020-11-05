@@ -66,6 +66,7 @@ func (c *Config) newRootCmd() (*cobra.Command, error) {
 	persistentFlags.StringVarP(&c.configFile, "config", "c", c.configFile, "config file")
 	persistentFlags.BoolVarP(&c.dryRun, "dry-run", "n", c.dryRun, "dry run")
 	persistentFlags.BoolVar(&c.force, "force", c.force, "force")
+	persistentFlags.BoolVarP(&c.keepGoing, "keep-going", "k", c.keepGoing, "keep going as far as possible after an error")
 	persistentFlags.BoolVarP(&c.verbose, "verbose", "v", c.verbose, "verbose")
 	persistentFlags.StringVarP(&c.output, "output", "o", c.output, "output file")
 	persistentFlags.BoolVar(&c.debug, "debug", c.debug, "write debug logs")

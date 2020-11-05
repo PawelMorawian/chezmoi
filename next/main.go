@@ -23,6 +23,7 @@ var (
 )
 
 func main() {
+	// FIXME create a chezmoi.Config and then execute its RootCmd
 	if err := cmd.Execute(cmd.VersionInfo{
 		Version: version,
 		Commit:  commit,
