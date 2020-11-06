@@ -8,7 +8,6 @@ import (
 
 type editCmdConfig struct {
 	apply     bool
-	diff      bool
 	include   *chezmoi.IncludeSet
 	recursive bool
 }
@@ -21,7 +20,7 @@ func (c *Config) newEditCmd() *cobra.Command {
 		Example: getExample("edit"),
 		RunE:    c.makeRunEWithSourceState(c.runEditCmd),
 		Annotations: map[string]string{
-			modifiesDestinationDirectory: "true", // Only if --apply. FIXME use exec instead.
+			modifiesDestinationDirectory: "true",
 			modifiesSourceDirectory:      "true",
 			requiresSourceDirectory:      "true",
 			runsCommands:                 "true",
@@ -30,7 +29,6 @@ func (c *Config) newEditCmd() *cobra.Command {
 
 	persistentFlags := editCmd.PersistentFlags()
 	persistentFlags.BoolVarP(&c.edit.apply, "apply", "a", c.edit.apply, "apply edit after editing")
-	persistentFlags.BoolVarP(&c.edit.diff, "diff", "d", c.edit.diff, "print diff after editing")
 
 	return editCmd
 }
@@ -57,6 +55,5 @@ func (c *Config) runEditCmd(cmd *cobra.Command, args []string, s *chezmoi.Source
 		return nil
 	}
 
-	// FIXME --diff
 	return c.applyArgs(c.destSystem, c.absDestDir, args, c.edit.include, c.edit.recursive, c.Umask.FileMode())
 }

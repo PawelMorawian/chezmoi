@@ -13,8 +13,8 @@ var (
 	// DefaultTemplateOptions are the default template options.
 	DefaultTemplateOptions = []string{"missingkey=error"}
 
-	entryStateBucket      = []byte("entryState")
-	scriptOnceStateBucket = []byte("script") // FIXME scriptOnce
+	EntryStateBucket      = []byte("entryState")
+	ScriptOnceStateBucket = []byte("script") // FIXME scriptOnce
 )
 
 // Suffixes and prefixes.
@@ -84,12 +84,10 @@ func (e *unsupportedFileTypeError) Error() string {
 	return fmt.Sprintf("%s: unsupported file type %s", e.path, modeTypeName(e.mode))
 }
 
-// FIXME merge the following two functions
-
-// EntryStateData returns the entry state data in s.
-func EntryStateData(s PersistentState) (interface{}, error) {
+// StateData returns the state data in bucket in s.
+func StateData(s PersistentState, bucket []byte) (interface{}, error) {
 	entryStateData := make(map[string]*EntryState)
-	if err := s.ForEach(entryStateBucket, func(k, v []byte) error {
+	if err := s.ForEach(bucket, func(k, v []byte) error {
 		var es EntryState
 		if err := json.Unmarshal(v, &s); err != nil {
 			return err
@@ -100,22 +98,6 @@ func EntryStateData(s PersistentState) (interface{}, error) {
 		return nil, err
 	}
 	return entryStateData, nil
-}
-
-// ScriptOnceData returns the script once data in s.
-func ScriptOnceData(s PersistentState) (interface{}, error) {
-	scriptOnceData := make(map[string]*scriptOnceState)
-	if err := s.ForEach(scriptOnceStateBucket, func(k, v []byte) error {
-		var s scriptOnceState
-		if err := json.Unmarshal(v, &s); err != nil {
-			return err
-		}
-		scriptOnceData[string(k)] = &s
-		return nil
-	}); err != nil {
-		return nil, err
-	}
-	return scriptOnceData, nil
 }
 
 // SuspiciousSourceDirEntry returns true if base is a suspicous dir entry.

@@ -276,7 +276,6 @@ func (t *TargetStateRenameDir) Evaluate() error {
 // Apply runs t.
 func (t *TargetStateScript) Apply(s System, destStateEntry DestStateEntry, umask os.FileMode) error {
 	var (
-		bucket     = scriptOnceStateBucket
 		key        []byte
 		executedAt time.Time
 	)
@@ -288,7 +287,7 @@ func (t *TargetStateScript) Apply(s System, destStateEntry DestStateEntry, umask
 		// FIXME the following assumes that the script name is part of the script state
 		// FIXME maybe it shouldn't be
 		key = []byte(t.name + ":" + hex.EncodeToString(contentsSHA256))
-		scriptOnceState, err := s.PersistentState().Get(bucket, key)
+		scriptOnceState, err := s.PersistentState().Get(ScriptOnceStateBucket, key)
 		if err != nil {
 			return err
 		}
@@ -315,7 +314,7 @@ func (t *TargetStateScript) Apply(s System, destStateEntry DestStateEntry, umask
 		if err != nil {
 			return err
 		}
-		if err := s.PersistentState().Set(bucket, key, value); err != nil {
+		if err := s.PersistentState().Set(ScriptOnceStateBucket, key, value); err != nil {
 			return err
 		}
 	}

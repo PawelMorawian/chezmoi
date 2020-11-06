@@ -31,7 +31,7 @@ func (c *Config) newInitCmd() *cobra.Command {
 		Example: getExample("init"),
 		RunE:    c.runInitCmd,
 		Annotations: map[string]string{
-			modifiesDestinationDirectory: "true", // Only if --apply. FIXME use exec instead.
+			modifiesDestinationDirectory: "true",
 			requiresSourceDirectory:      "true",
 			runsCommands:                 "true",
 		},

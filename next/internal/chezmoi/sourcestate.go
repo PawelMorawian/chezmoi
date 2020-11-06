@@ -318,7 +318,7 @@ func (s *SourceState) ApplyOne(targetSystem System, targetDir, targetName string
 	if err != nil {
 		return err
 	}
-	return targetSystem.PersistentState().Set(entryStateBucket, []byte(targetPath), data)
+	return targetSystem.PersistentState().Set(EntryStateBucket, []byte(targetPath), data)
 }
 
 // Entries returns s's source state entries.
