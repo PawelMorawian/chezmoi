@@ -1,8 +1,5 @@
 package cmd
 
-// FIXME update REFERENCE.md
-// FIXME add per-shell Long and Example
-
 import (
 	"fmt"
 	"strings"

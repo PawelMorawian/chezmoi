@@ -106,7 +106,7 @@ func parseBool(str string) (bool, error) {
 func serializationFormatNamesStr() string {
 	names := make([]string, 0, len(chezmoi.Formats))
 	for name := range chezmoi.Formats {
-		names = append(names, strings.ToLower(name))
+		names = append(names, name)
 	}
 	sort.Strings(names)
 	switch len(names) {

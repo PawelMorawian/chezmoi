@@ -631,7 +631,7 @@ func (s *SourceState) addPatterns(patternSet *PatternSet, sourcePath, relPath st
 func (s *SourceState) addTemplateData(sourcePath string) error {
 	_, name := path.Split(sourcePath)
 	suffix := mustTrimPrefix(name, dataName+".")
-	format, ok := Formats[strings.ToLower(suffix)]
+	format, ok := Formats[suffix]
 	if !ok {
 		return fmt.Errorf("%s: unknown format", sourcePath)
 	}
