@@ -25,8 +25,6 @@ grep -count=2 '# edited' $CHEZMOISOURCEDIR/symlink_dot_symlink
 ! chezmoi edit $HOME${/}.ssh
 
 # FIXME --apply tests
-# FIXME --prompt tests
-# FIXME --verify tests
 
 -- home/user/.local/share/chezmoi/run_script --
 #!/bin/sh
